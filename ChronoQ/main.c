@@ -58,20 +58,15 @@ void interrupt ISR()
 
       if(counter==3)
       {
-         //Toggle RB1 (LED)
 
         PORTB=0b11111111;
-         
+
          counter=0;  //Reset Counter
-//
       }
       else
       {
           PORTB=0b00000000;
-
-
       }
-
       //Clear Flag
       TMR0IF=0;
    }
@@ -89,19 +84,12 @@ int main(int argc, char** argv) {
 
     // Configuration du timer0 pour la persistance retinienne
 
-   /*  T0CON = 0b0000100;
-     TMR0L=0;
-     TMR0H=50;
-     TMR0ON=1;*/
-
 
 
        //Setup Timer0
-   T0PS0=0; //Prescaler is divide by 256
-
-   T0PS1=0;
+   T0PS0=1; //Prescaler is divide by 256
+   T0PS1=1;
    T0PS2=1;
-
    PSA=0;      //Timer Clock Source is from Prescaler
 
    T0CS=0;     //Prescaler gets clock from FCPU (5MHz)
@@ -110,12 +98,10 @@ int main(int argc, char** argv) {
 
    TMR0IE=1;   //Enable TIMER0 Interrupt
    PEIE=1;     //Enable Peripheral Interrupt
-
    GIE=1;      //Enable INTs globally
+   TMR0ON=0;      //Now start the timer!
 
-   TMR0ON=1;      //Now start the timer!
 
-   
     while (1) {
 
         for (int i =0 ; i<50;i++){}
