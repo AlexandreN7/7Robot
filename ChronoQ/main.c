@@ -7,8 +7,10 @@
 
 //configuration
 
-//#pragma config XINST = OFF
+#pragma config XINST = OFF
 //#pragma config FOSC = INTIO2
+
+
 
 
 
@@ -28,84 +30,96 @@
 #define SegmentF PORTBbits_t.PORTB2
 #define SegmentG PORTBbits_t.PORTB1
 #define SegmentH PORTBbits_t.PORTB0
-#define USE_OR_MASKS
-#define Afficheur1 PORTAbits_t.PORTA1
-#define Afficheur2 PORTAbits_t.PORTA2
-#define Afficheur3 PORTAbits_t.PORTA3
-#define Afficheur4 PORTAbits_t.PORTA4
-#define Afficheur5 PORTAbits_t.PORTA5
+#define Afficheur1 PORTAbits_t.RA1
+#define Afficheur2 PORTAbits_t.RA2
+#define Afficheur3 PORTAbits_t.RA3
+#define Afficheur4 PORTAbits_t.RA4
+#define Afficheur5 PORTAbits_t.RA5
 
 
-////////////////////////////////////////////////////////////////////////////
-
-
+////////////////////////////////VARIABLES GLOBALES////////////////////////////////////////////
 
 
 char dixieme_millisecondes = 0;
 int millisecondes = 0;
 int secondes = 0;
-int test = 1;
-int counter =0;
+char balayage = 0;
+
+
+void rafraichissement (int);
+
+
+
+
+
+
+
 //Main Interrupt Service Routine (ISR)
-void interrupt ISR()
+void interrupt low_interrupt()
 {
    //Check if it is TMR0 Overflow ISR
-
    if(TMR0IE && TMR0IF)
    {
       //TMR0 Overflow ISR
-      counter++;  //Increment Over Flow Counter
-
-      if(counter==3)
-      {
-
-        PORTB=0b11111111;
-
-         counter=0;  //Reset Counter
-      }
-      else
-      {
-          PORTB=0b00000000;
-      }
+       if (balayage ==4)
+       {
+           balayage = 0;
+       }
+       else
+       {
+           balayage++;  //Increment Over Flow Counter
+       }
+       
+       rafraichissement(balayage);
       //Clear Flag
       TMR0IF=0;
    }
 }
 
 
+
 int main(int argc, char** argv) {
 
-    //----Configure Timers----
-
+    ///////////////////////CONFIGURATION///////////////////////////////////////////
     INTCON  =  0b11100000;
-
     TRISB = 0; // mets les ports B en sortie
     TRISA = 0; // mets les ports A en sortie
 
-    // Configuration du timer0 pour la persistance retinienne
 
-
-
-       //Setup Timer0
+       //Setup Timer0 la persistance retinienne
    T0PS0=1; //Prescaler is divide by 256
    T0PS1=1;
    T0PS2=1;
    PSA=0;      //Timer Clock Source is from Prescaler
-
    T0CS=0;     //Prescaler gets clock from FCPU (5MHz)
-
    T08BIT=1;   //8 BIT MODE
-
    TMR0IE=1;   //Enable TIMER0 Interrupt
    PEIE=1;     //Enable Peripheral Interrupt
    GIE=1;      //Enable INTs globally
-   TMR0ON=0;      //Now start the timer!
+   TMR0ON=1;      //Now start the timer!
 
-
+       //setup Timer2
+   
     while (1) {
-
-        for (int i =0 ; i<50;i++){}
     }
 
     return (EXIT_SUCCESS);
 }
+
+
+void rafraichissement (int afficheur)
+{
+
+       
+    switch(afficheur)
+    {
+        case 0 :    PORTA =0b00000001; break;
+        case 1 :    PORTA =0b00000010; break;
+        case 2 :    PORTA =0b00000100; break;
+        case 3 :    PORTA =0b00001000; break;
+        case 4 :    PORTA =0b00100000; break;
+        default : ;
+    }
+}
+
+//intcon tmr4IP IPRX
